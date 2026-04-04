@@ -46,7 +46,7 @@ git push
 | 版本 | 平台 | 架构 | 运行时 | 体积 | 说明 |
 |------|------|:---:|--------|:----:|------|
 | Self-contained | Windows | x64 | 内置 | ~140MB | 单文件 exe，无需安装 .NET 运行时，双击即可运行 |
-| Green 绿色版 | Windows | x64 | 需要 .NET 8.0 | ~25KB | 压缩包，需要预先安装 .NET 8.0 运行时 |
+| Runtime-dependent | Windows | x64 | 需要 .NET 8.0 | ~60KB | 压缩包，需要预先安装 .NET 8.0 运行时 |
 
 ## 📦 流程阶段
 
@@ -96,7 +96,7 @@ flowchart TB
 
 版本号从 `Desuwa.csproj` 中的 `<Version>` 标签自动提取，用于：
 - Release tag 名称（例如 `v0.1.0`）
-- 产物文件名（例如 `Desuwa-windows-x64-self-contained-v0.1.0.exe`、`Desuwa-windows-x64-green-v0.1.0.zip`）
+- 产物文件名（例如 `Desuwa-windows-x64-self-contained-v0.1.0.exe`、`Desuwa-windows-x64-runtime-dependent-v0.1.0.zip`）
 - exe 文件属性中的版本信息
 
 ### 如何更新版本号
@@ -144,7 +144,7 @@ cd D:\aaaStuffsaaa\from_git\github\Desuwa
 dotnet publish -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -o publish-selfcontained
 # 输出: publish-selfcontained\Desuwa.exe
 
-# Green 绿色版
-dotnet publish -c Release -r win-x64 --self-contained false -o publish-green
-# 输出: publish-green\Desuwa.exe (需要 .NET 运行时)
+# Runtime-dependent 版本
+dotnet publish -c Release --self-contained false -o publish-runtime-dependent
+# 输出: publish-runtime-dependent\Desuwa.exe (需要 .NET 运行时)
 ```

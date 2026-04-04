@@ -83,9 +83,9 @@ jobs:
         run: |
           dotnet publish -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -o publish-selfcontained
 
-      - name: Build green version (framework-dependent)
+      - name: Build runtime-dependent version
         run: |
-          dotnet publish -c Release --self-contained false -o publish-green
+          dotnet publish -c Release --self-contained false -o publish-runtime-dependent
 
       - name: Prepare artifacts
         shell: pwsh
@@ -97,14 +97,14 @@ jobs:
           Write-Host "📦 Self-contained: $SELFCONTAINED_NAME"
           Copy-Item "publish-selfcontained\Desuwa.exe" $SELFCONTAINED_NAME
 
-          # Green zip
-          $GREEN_NAME = "Desuwa-windows-x64-green-${VERSION}.zip"
-          Write-Host "📦 Green version: $GREEN_NAME"
-          Compress-Archive -Path "publish-green\*" -DestinationPath $GREEN_NAME
+          # Runtime-dependent zip
+          $RUNTIME_DEP_NAME = "Desuwa-windows-x64-runtime-dependent-${VERSION}.zip"
+          Write-Host "📦 Runtime-dependent version: $RUNTIME_DEP_NAME"
+          Compress-Archive -Path "publish-runtime-dependent\*" -DestinationPath $RUNTIME_DEP_NAME
 
           # Save names for later steps
           echo "selfcontained_name=$SELFCONTAINED_NAME" >> $env:GITHUB_ENV
-          echo "green_name=$GREEN_NAME" >> $env:GITHUB_ENV
+          echo "runtime_dep_name=$RUNTIME_DEP_NAME" >> $env:GITHUB_ENV
 
       - name: Upload self-contained artifact
         uses: actions/upload-artifact@v4
@@ -112,11 +112,11 @@ jobs:
           name: ${{ env.selfcontained_name }}
           path: ${{ env.selfcontained_name }}
 
-      - name: Upload green artifact
+      - name: Upload runtime-dependent artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ env.green_name }}
-          path: ${{ env.green_name }}
+          name: ${{ env.runtime_dep_name }}
+          path: ${{ env.runtime_dep_name }}
 
   # ── 发布到 GitHub Releases ─────────────────────────────
   release:
@@ -169,11 +169,11 @@ jobs:
             echo "> ✅ 单文件 exe，无需安装 .NET 运行时，双击即可运行"
             echo "> 📦 体积约 140MB"
             echo ""
-            echo "#### Green 绿色版"
-            echo "- [Desuwa-windows-x64-green-${VERSION}.zip](${BASE_URL}/Desuwa-windows-x64-green-${VERSION}.zip)"
+            echo "#### Runtime-dependent 版本"
+            echo "- [Desuwa-windows-x64-runtime-dependent-${VERSION}.zip](${BASE_URL}/Desuwa-windows-x64-runtime-dependent-${VERSION}.zip)"
             echo ""
             echo "> ⚠️ 需要预先安装 .NET 8.0 运行时"
-            echo "> 📦 体积约 25KB"
+            echo "> 📦 体积约 60KB"
             echo ""
             echo "---"
             echo ""
@@ -217,4 +217,4 @@ jobs:
             --notes-file release_notes.md \
             --latest \
             Desuwa-windows-x64-self-contained-${VERSION}.exe \
-            Desuwa-windows-x64-green-${VERSION}.zip
+            Desuwa-windows-x64-runtime-dependent-${VERSION}.zip
