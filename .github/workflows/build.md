@@ -43,9 +43,10 @@ git push
 
 ## 🏗️ 构建目标
 
-| 平台 | 架构 | 运行时 | 说明 |
-|----------|:---:|--------|-------|
-| Windows | x64 | Self-contained | 单文件 exe，无需安装 .NET 运行时 |
+| 版本 | 平台 | 架构 | 运行时 | 体积 | 说明 |
+|------|------|:---:|--------|:----:|------|
+| Self-contained | Windows | x64 | 内置 | ~140MB | 单文件 exe，无需安装 .NET 运行时，双击即可运行 |
+| Green 绿色版 | Windows | x64 | 需要 .NET 8.0 | ~25KB | 压缩包，需要预先安装 .NET 8.0 运行时 |
 
 ## 📦 流程阶段
 
@@ -55,9 +56,10 @@ check ──→ build ──→ release
   │         │         └─ 下载构建产物
   │         │            删除旧的 release/tag
   │         │            生成 release notes
-  │         │            创建 GitHub Release
+  │         │            创建 GitHub Release（包含两个版本）
   │         │
   │         └─ 编译 Windows x64 self-contained
+  │            编译 Windows x64 green 版本
   │            上传构建产物
   │
   └─ 解析 commit message
@@ -94,7 +96,7 @@ flowchart TB
 
 版本号从 `Desuwa.csproj` 中的 `<Version>` 标签自动提取，用于：
 - Release tag 名称（例如 `v0.1.0`）
-- 产物文件名（例如 `Desuwa-windows-x64-v0.1.0.exe`）
+- 产物文件名（例如 `Desuwa-windows-x64-self-contained-v0.1.0.exe`、`Desuwa-windows-x64-green-v0.1.0.zip`）
 - exe 文件属性中的版本信息
 
 ### 如何更新版本号
@@ -119,17 +121,30 @@ git commit -m "release: v0.2.0 (build release)"
 git push
 ```
 
-## 🎯 Self-contained 发布
+## 🎯 两种发布模式
 
-项目配置为 self-contained 发布模式：
+### Self-contained 版本（推荐）
 - ✅ 单个 exe 文件，无需安装 .NET 运行时
 - ✅ 可在没有 .NET 的 Windows 系统上直接运行
 - ✅ 所有依赖项都打包在 exe 中
+- ⚠️ 体积较大（约 140MB）
+
+### Green 绿色版
+- ✅ 体积小巧（约 25KB）
+- ✅ 适合已安装 .NET 运行时的用户
+- ⚠️ 需要预先安装 .NET 8.0 运行时
+- ⚠️ 以 zip 压缩包形式发布
 
 ### 本地测试
 
 ```bash
 cd D:\aaaStuffsaaa\from_git\github\Desuwa
-dotnet publish -c Release -r win-x64 --self-contained true
-# 输出在 bin\Release\net8.0-windows\win-x64\publish\Desuwa.exe
+
+# Self-contained 版本
+dotnet publish -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -o publish-selfcontained
+# 输出: publish-selfcontained\Desuwa.exe
+
+# Green 绿色版
+dotnet publish -c Release -r win-x64 --self-contained false -o publish-green
+# 输出: publish-green\Desuwa.exe (需要 .NET 运行时)
 ```
