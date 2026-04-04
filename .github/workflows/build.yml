@@ -81,11 +81,11 @@ jobs:
 
       - name: Build self-contained version
         run: |
-          dotnet publish -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -o publish-selfcontained
+          dotnet publish Desuwa.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -o publish-selfcontained
 
       - name: Build runtime-dependent version
         run: |
-          dotnet publish -c Release --self-contained false -o publish-runtime-dependent
+          dotnet publish Desuwa.csproj -c Release --self-contained false -o publish-runtime-dependent
 
       - name: Prepare artifacts
         shell: pwsh
