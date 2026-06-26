@@ -81,11 +81,15 @@ jobs:
 
       - name: Build self-contained version
         run: |
-          dotnet publish Desuwa.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -o publish-selfcontained
+          dotnet publish Desuwa.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:EnableCompressionInSingleFile=true -p:DebugType=none -o publish-selfcontained
+
+      - name: Build debug version (uncompressed, with PDB)
+        run: |
+          dotnet publish Desuwa.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:EnableCompressionInSingleFile=false -p:DebugType=portable -p:IncludeSymbolsInSingleFile=false -o publish-debug
 
       - name: Build runtime-dependent version
         run: |
-          dotnet publish Desuwa.csproj -c Release --self-contained false -o publish-runtime-dependent
+          dotnet publish Desuwa.csproj -c Release --self-contained false -p:DebugType=none -o publish-runtime-dependent
 
       - name: Prepare artifacts
         shell: pwsh
@@ -102,9 +106,15 @@ jobs:
           Write-Host "📦 Runtime-dependent version: $RUNTIME_DEP_NAME"
           Compress-Archive -Path "publish-runtime-dependent\*" -DestinationPath $RUNTIME_DEP_NAME
 
+          # Debug zip (uncompressed exe + PDB)
+          $DEBUG_NAME = "Desuwa-windows-x64-debug-${VERSION}.zip"
+          Write-Host "🐛 Debug version: $DEBUG_NAME"
+          Compress-Archive -Path "publish-debug\*" -DestinationPath $DEBUG_NAME
+
           # Save names for later steps
           echo "selfcontained_name=$SELFCONTAINED_NAME" >> $env:GITHUB_ENV
           echo "runtime_dep_name=$RUNTIME_DEP_NAME" >> $env:GITHUB_ENV
+          echo "debug_name=$DEBUG_NAME" >> $env:GITHUB_ENV
 
       - name: Upload self-contained artifact
         uses: actions/upload-artifact@v6
@@ -117,6 +127,12 @@ jobs:
         with:
           name: ${{ env.runtime_dep_name }}
           path: ${{ env.runtime_dep_name }}
+
+      - name: Upload debug artifact
+        uses: actions/upload-artifact@v6
+        with:
+          name: ${{ env.debug_name }}
+          path: ${{ env.debug_name }}
 
   # ── 发布到 GitHub Releases ─────────────────────────────
   release:
@@ -192,4 +208,5 @@ jobs:
             --notes-file release_notes.md \
             --latest \
             Desuwa-windows-x64-self-contained-${VERSION}.exe \
-            Desuwa-windows-x64-runtime-dependent-${VERSION}.zip
+            Desuwa-windows-x64-runtime-dependent-${VERSION}.zip \
+            Desuwa-windows-x64-debug-${VERSION}.zip

@@ -1,4 +1,4 @@
-# 🎀 Desuwa - ですわ
+# ⌨️ Desuwa - ですわ
 
 <div align="center">
 
@@ -35,15 +35,15 @@ Desuwa 是一个轻量级的 Windows 系统托盘工具，可以在你按下回�
 
 #### 🐛 起因：B站评论区
 
-![使用示例](images/preview/bili.comment.png)
+![使用示例](images/bili.comment.png)
 
 ### 🖱️ 托盘菜单
 
-![托盘菜单](images/preview/bottom-right.context-menu.png)
+![托盘菜单](images/preview.bottom-right.context-menu.png)
 
 ### 🎬 演示动画
 
-![演示](images/preview/preview.usage.gif)
+![演示](images/preview.usage.gif)
 
 ## 📥 下载安装
 
@@ -51,12 +51,17 @@ Desuwa 是一个轻量级的 Windows 系统托盘工具，可以在你按下回�
 
 前往 [Releases](https://github.com/VincentZyuApps/Desuwa/releases) 页面下载最新版本：
 
-| 版本 | 说明 |   体积   | 运行时要求 |
-|:---|:---|:------:|:---|
-| **📦 Self-contained** | 独立运行版 | ~140MB | 无需安装 .NET |
-| **🧩 Runtime-dependent** | 运行时依赖版 | ~400KB | 需要 .NET 8.0 运行时 |
+| 版本 | 下载 | 压缩 | PDB | 体积 | 场景 |
+|------|:----:|:----:|:---:|:----:|------|
+| **📦 Self-contained** | [![self-contained.exe](https://img.shields.io/badge/self--contained.exe-0078D4)](https://github.com/VincentZyuApps/Desuwa/releases) | ✅ | ❌ | ~60MB | 普通用户 |
+| **🧩 Runtime-dependent** | [![runtime-dependent.zip](https://img.shields.io/badge/runtime--dependent.zip-67b7d1)](https://github.com/VincentZyuApps/Desuwa/releases) | — | ❌ | ~400KB | 省空间用户 |
+| **🐛 Debug** | [![debug.zip](https://img.shields.io/badge/debug.zip-8E8E93)](https://github.com/VincentZyuApps/Desuwa/releases) | ❌ | ✅ | ~140MB | 开发者调 crash |
 
-**👍 推荐下载 Self-contained 版本**，双击即可运行，无需任何依赖。
+> ✅ **Self-contained** — 单文件 exe，无需安装 .NET 运行时，双击即可运行。gzip 压缩，体积约 60MB。
+>
+> ⚠️ **Runtime-dependent** — 需要预先安装 .NET 8.0 运行时，体积仅约 400KB。
+>
+> 🐛 **Debug** — 未压缩，含 PDB 调试符号，适合开发者调试使用，体积约 140MB。
 
 ### 🔨 方式二：从源码构建
 
