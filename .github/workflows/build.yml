@@ -155,54 +155,29 @@ jobs:
           REPO="${{ github.repository }}"
           BASE_URL="https://github.com/${REPO}/releases/download/${VERSION}"
 
-          # 查找上一个 release tag
           PREV_TAG=$(git tag --sort=-v:refname | grep -v "^${VERSION}$" | head -1)
 
-          {
-            echo "## 📦 Desuwa ${VERSION}"
-            echo ""
-            echo "### ⬇️ Download"
-            echo ""
-            echo "#### Self-contained 版本（推荐）"
-            echo "- [Desuwa-windows-x64-self-contained-${VERSION}.exe](${BASE_URL}/Desuwa-windows-x64-self-contained-${VERSION}.exe)"
-            echo ""
-            echo "> ✅ 单文件 exe，无需安装 .NET 运行时，双击即可运行"
-            echo "> 📦 体积约 140MB"
-            echo ""
-            echo "#### Runtime-dependent 版本"
-            echo "- [Desuwa-windows-x64-runtime-dependent-${VERSION}.zip](${BASE_URL}/Desuwa-windows-x64-runtime-dependent-${VERSION}.zip)"
-            echo ""
-            echo "> ⚠️ 需要预先安装 .NET 8.0 运行时"
-            echo "> 📦 体积约 60KB"
-            echo ""
-            echo "---"
-            echo ""
-            echo "### What's Changed"
-            echo ""
+          if [ -n "$PREV_TAG" ]; then
+            git log "${PREV_TAG}..HEAD" --pretty=format:"- %s (\`%h\`) @%an %ad" --date=format:"%Y-%m-%d" --reverse > changelog.txt
+            FULL_CHANGELOG="**Full Changelog**: https://github.com/${REPO}/compare/${PREV_TAG}...${VERSION}"
+          else
+            echo "Initial release" > changelog.txt
+            FULL_CHANGELOG="**Full Changelog**: https://github.com/${REPO}/commits/${VERSION}"
+          fi
 
-            if [ -n "$PREV_TAG" ]; then
-              echo "Changes since **${PREV_TAG}**:"
-              echo ""
-              git log "${PREV_TAG}..HEAD" --pretty=format:"- %s (\`%h\`)" --reverse
-            else
-              echo "Initial release"
-            fi
+          cp .github/release_template.md release_notes.md
 
-            echo ""
-            echo ""
-            echo "---"
-            echo ""
-            echo "### 📊 Build Info"
-            echo "- **Build date**: $(date -u '+%Y-%m-%d %H:%M UTC')"
-            echo "- **Commit**: [\`${GITHUB_SHA::7}\`](https://github.com/${REPO}/commit/${GITHUB_SHA})"
-            echo ""
+          sed -i \
+            -e "s|__VERSION__|${VERSION}|g" \
+            -e "s|__REPO__|${REPO}|g" \
+            -e "s|__BASE_URL__|${BASE_URL}|g" \
+            -e "s|__BUILD_DATE__|$(date -u '+%Y-%m-%d %H:%M UTC')|g" \
+            -e "s|__COMMIT_SHA__|${GITHUB_SHA::7}|g" \
+            -e "s|__FULL_CHANGELOG__|${FULL_CHANGELOG}|g" \
+            release_notes.md
 
-            if [ -n "$PREV_TAG" ]; then
-              echo "**Full Changelog**: https://github.com/${REPO}/compare/${PREV_TAG}...${VERSION}"
-            else
-              echo "**Full Changelog**: https://github.com/${REPO}/commits/${VERSION}"
-            fi
-          } > release_notes.md
+          sed -i "/__CHANGE_LOG__/{r changelog.txt
+          d}" release_notes.md
 
           echo "📝 Generated release notes:"
           cat release_notes.md
